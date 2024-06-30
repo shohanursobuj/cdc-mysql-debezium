@@ -21,7 +21,7 @@ Change Data Capture (CDC) is a process that allows organizations to automaticall
 
 Debezium is a tool built on top of Kafka that provides a set of Kafka Connect compatible connectors. It transforms database changes into event streams, allowing applications to detect and respond to row-level changes. Debezium connectors must be present in the Kafka Connect cluster.
 
-![Debezium Architecture](assets\fig-1.png)
+![Debezium Architecture](assets/fig-1.png)
 *Fig-1: Architecture of Debezium (Connector Role)*
 
 Debezium offers connectors for Cassandra, Db2, MongoDB, MySQL, Oracle Database, PostgreSQL, SQL Server, and Vitess databases. It can be used as an embedded library in custom Java applications or as a standalone server.
