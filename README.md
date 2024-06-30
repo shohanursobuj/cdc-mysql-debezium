@@ -1,5 +1,3 @@
-Here's the updated README snippet with the additional instructions included at the end:
-
 ---
 
 # cdc-mysql-debezium
