@@ -1,15 +1,18 @@
 {
-    "name": "dataops-connector",
-    "config": {
-      "connector.class": "io.debezium.connector.mysql.MySqlConnector",
-      "database.hostname": "mysql",
-      "database.port": "3306",
-      "database.user": "debezium",
-      "database.password": "dbz",
-      "topic.prefix": "dbserver1",
-      "database.server.id": "184054",
-      "database.include.list": "dataops",
-      "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
-      "schema.history.internal.kafka.topic": "schema-changes.dataops"
-    }
+  "name": "brapps-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "10.10.100.21",
+    "database.port": "3306",
+    "database.user": "imran",
+    "database.password": "imran@1234",
+    "topic.prefix": "dbserver1",
+    "database.server.id": "184054",
+    "database.include.list": "ml_bida",
+    "table.include.list": "ml_bida.blockchain_audit",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+    "schema.history.internal.kafka.topic": "schema-changes.ml_bida",
+    "include.schema.changes": "true",
+    "include.query": "true"
   }
+}

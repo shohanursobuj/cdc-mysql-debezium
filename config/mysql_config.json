@@ -1,0 +1,30 @@
+{
+    "name": "dataops-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+      "tasks.max": "1",
+      "database.hostname": "10.10.100.21",
+      "database.port": "3306",
+      "database.user": "imran",
+      "database.password": "Imr@n#)(*123",
+      "database.server.name": "ml-bida-source",
+      "database.include.list": "ml_bida",
+      "table.include.list": "ml_bida.blockchain_audit",
+      "database.history.kafka.bootstrap.servers": "10.10.100.45:9092",
+      "database.history.kafka.topic": "schema-changes-ML-history",
+      "quote.identifiers": "true",
+      "topic.prefix": "ml",
+      "database.server.id": "1",
+      "snapshot.mode": "initial",
+      "snapshot.locking.mode": "none",
+      "schema.history.internal.kafka.bootstrap.servers": "10.10.100.45:9092",
+      "schema.history.internal.kafka.topic": "schema-changes-ML-internal",
+      "transforms": "route",
+      "include.schema.changes": "true",
+      "include.key": "true",
+      "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+      "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
+      "transforms.route.replacement": "$1_$3"
+    }
+  }
+  
