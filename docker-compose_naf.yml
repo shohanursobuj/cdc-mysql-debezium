@@ -1,0 +1,91 @@
+version: '2'
+services:
+  mysql:
+    image: debezium/example-mysql:1.8
+    container_name: mysql
+    hostname: mysql
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: debezium
+      MYSQL_USER: mysqluser
+      MYSQL_PASSWORD: mysqlpw
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.3
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - '2181:2181'
+
+  kafka:
+    image: confluentinc/cp-enterprise-kafka:5.5.3
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    links:
+      - zookeeper
+    ports:
+      - '9092:9092'
+
+  schema-registry:
+    container_name: schema-registry
+    image: confluentinc/cp-schema-registry:4.0.3
+    environment:
+      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
+      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+    ports:
+      - '8081:8081'
+
+  kafka-connect:
+    container_name: kafka-connect
+    image: debezium/connect:1.8
+    ports:
+      - '8083:8083'
+    links:
+      - kafka
+      - zookeeper
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=debezium_docker
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - CONFIG_STORAGE_REPLICATION_FACTOR=1
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - OFFSET_STORAGE_REPLICATION_FACTOR=1
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - STATUS_STORAGE_REPLICATION_FACTOR=1
+      - REST_ADVERTISED_HOST_NAME=debezium_docker
+
+  connector-sender:
+    container_name: connector-sender
+    image: confluentinc/cp-kafka-connect:5.5.3
+    volumes:
+      - ./conf:/config
+    depends_on:
+      - kafka-connect
+    command: >
+      bash -c "
+        echo 'Waiting for kafka connect to start...' &&
+        until [[ \"\$$(curl -s -o /dev/null -w '%{http_code}' kafka-connect:8083/connectors)\" -eq 200 ]]; do
+          sleep 1;
+        done;
+        echo 'Sending connector' &&
+        curl -i -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' kafka-connect:8083/connectors/ -d @mysql_config.json
+      "
